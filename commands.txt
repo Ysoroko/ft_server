@@ -20,7 +20,9 @@ docker build . //this is used with our Dockerfile to create an image (generates 
 docker build -t [your docker od/project name:version] . // creates a name. [convention]
 
 
-docker run -p 8080 : 8080 [ID] //runs with port mapping (allows the incoming
+docker run -p 8080 : 80 [ID] //runs with port mapping (allows the incoming
 								//traffic to reach inside the container)
 								// the 2 ports dont have to be identical
-								//(5000: 8080 is ok, but webserv application needs to follow up)
+								//(5000: 8080 is ok, but webserv application needs to follow up	)
+								//(8080:80 default NGINX ports config)
+docker compose //separate CLI used to start up multiple Docker containers at the same time
