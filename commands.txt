@@ -1,0 +1,16 @@
+docker run [IMAGE NAME] //runs an image
+docker run [IMAGE NAME] [COMMAND] overrides the default command
+docker create hello-world // creates a container and shows its 'id' in the terminal
+docker start [ID] //starts the containter, but doesnt output to the terminal
+docker start -a [ID] //same thing, but with "-a" flag it outputs to the terminal
+docker ps //shows the list of all active containers
+docker ps --all //same thing, but shows all (active/unactive containers ever created)
+docker system prune //deletes stop containers, build cache (we will need to download images again)
+docker logs [ID] //shows all the output produced by the container (without running it)
+docker stop [ID] //issues sigterm (terminate the process, but safely). if it doesn't stop within 10s, it automatically issues docker kill
+docker kill [ID] //issues sigkill (kills the process immediately)
+docker exec -it [ID] [COMMAND]	//allows us to execute a command inside a running container
+								// "-i" flag allows us to attach our terminal to the process's stdin
+								// "-t" flag makes sure that the text we input / that outputs is nice and pretty
+docker exec -t [ID] sh	//'sh' allows us to enter the "shell environment" of the container
+						//and run the commands inside the container without rerunning "docker exec ..."
