@@ -26,3 +26,5 @@ docker run -p 8080 : 80 [ID] //runs with port mapping (allows the incoming
 								//(5000: 8080 is ok, but webserv application needs to follow up	)
 								//(8080:80 default NGINX ports config)
 docker compose //separate CLI used to start up multiple Docker containers at the same time
+docker [COMMAND] --help //shows the help for the given command
+docker rmi [IMAGE NAME/ID] //removes the image
