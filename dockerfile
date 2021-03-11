@@ -1,6 +1,10 @@
 # Use an existing docker image as base
 # The image is selected based on all the default programs
 # provided which will help us to launch the image
+
+# To enter the debian buster image with shell:
+# docker run -it -p 80:80 --name lemp debian:buster /bin/sh
+# docker start -it -p 80:80 --name lemp debian:buster /bin/sh
 FROM debian:buster
 
 EXPOSE 80
@@ -11,27 +15,33 @@ EXPOSE 80
 RUN	apt-get update;
 RUN	apt-get -y upgrade;
 
+# INSTALL ALL
+RUN apt-get install nginx mariadb-server mariadb-client -y;
+RUN apt-get	php-cgi php-common php-fpm php-pear php-mbstring -y;
+RUN apt-get php-zip php-net-socket php-gd php-xml-util -y;
+RUN apt-get php-gettext php-mysql php-bcmath unzip -y;
+RUN apt-get wget vim systemd git -y;
 
 # -----------------1. DEPLOY NGINX-----------------
-RUN	apt-get -y install nginx;
 
 # run nginx is needed to actually launch the nginx 
 # (which was until then only installed)
-RUN nginx
+# This is actually done in CMD line
+# RUN nginx
 # at this point, we get the "Welcome to nginx on localhost"
 # --------------------------------------------------
 
 
 # -----------------2. Install Maria DB (My Sql)-----------------
 # Maria DB (MY Sql) is used to store and manage the data on the server
-RUN apt install -y mariadb-server
+#RUN apt install -y mariadb-server
 
 # The next line is required to follow through
 # with the configuration of the password
-RUN service mysql start;
-# RUN mariadb
+#RUN service mysql start;
 # The next line is the setup which needs to be only ran once
 # RUN mysql_secure_installation
+# RUN mariadb
 # USER = example_user; PASSWORD = password
 # -----------------------------------------------------
 
@@ -41,23 +51,22 @@ RUN service mysql start;
 # act as bridge between PHP interpreter and the web server
 # PHP-FPM = PHP fastCGI process manager
 # PHP-MYSQL allows PHP to communicate with MySQL-based databases
-RUN apt-get -y install php-fpm php-mysql;
 
+# RUN nginx -s reload;
+# RUN nginx;
 
+# RUN killall -KILL php-fpm7.3;
+# RUN service php7.3-fpm start;
+# RUN service php7.3-fpm restart;
+# RUN mkdir /run/nginx;
 
-RUN nginx -s reload;
+# -----------------3. Wordpress-----------------
 
-
-RUN killall -KILL php-fpm7.3;
-RUN service php7.3-fpm start;
-
+ADD srcs/default.conf /etc/nginx/conf.d/default.conf
 # MANUALLY DONE INSIDE THE IMAGE:
 # In order to modify the default nginx configuration file
 # we will need a text editor (I chose VIM)
 # RUN	apt-get -y install vim;
-
-RUN	apt-get -y install php-mysql;
-RUN	mkdir /run/nginx;
 
 #COPY srcs/nginx.conf /usr/local/nginx/conf
 #COPY ./srcs/index.html /usr/share/nginx/html/index.html
@@ -65,9 +74,11 @@ RUN	mkdir /run/nginx;
 
 
 #CMD ["/bin/sh", "-c",  "exec nginx -g 'daemon off;';"]
+CMD ["/bin/sh", "-c", "/usr/sbin/php-fpm7; exec nginx -g 'daemon off;';"]
 
 WORKDIR /var/www/localhost/htdocs
 
 
 
-#$ docker run -it --rm -d -p 8080:80 --name web webserver
+# docker run -it -d -v $PWD:/var/www/localhost/htdocs -p 80:80 --name mywp lempenv
+# docker build . -t lempenv
