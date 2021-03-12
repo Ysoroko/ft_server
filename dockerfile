@@ -23,16 +23,17 @@ RUN	apt-get -y upgrade;
 
 # INSTALL ALL
 RUN apt-get install nginx mariadb-server mariadb-client -y;
-RUN apt-get	php-cgi php-common php-fpm php-pear php-mbstring -y;
-RUN apt-get php-zip php-net-socket php-gd php-xml-util -y;
-RUN apt-get php-gettext php-mysql php-bcmath unzip -y;
-RUN apt-get wget vim systemd git -y;
+RUN apt-get	install php-cgi php-common php-fpm php-pear php-mbstring -y;
+RUN apt-get install php-zip php-net-socket php-gd php-xml-util -y;
+RUN apt-get install php-gettext php-mysql php-bcmath unzip -y;
+RUN apt-get install wget vim systemd git -y;
 
 # -----------------1. SETUP NGINX-----------------
 
 # -p flag doesnt raise a warning if the directory already exists
 RUN mkdir -p /var/www/localhost
-COPY 
+COPY srcs/nginx.conf /etc/nginx/;
+
 # at this point, we get the "Welcome to nginx on localhost"
 # --------------------------------------------------
 
@@ -122,7 +123,7 @@ echo "CREATE DATABASE wordpress;" | mysql -u root
 echo "GRANT ALL PRIVILEGES ON wordpress.* TO 'root'@'localhost';" | mysql -u root
 echo "FLUSH PRIVILEGES;" | mysql -u root
 echo "update mysql.user set plugin = 'mysql_native_password' where user='root';" | mysql -u root
-cd
+cd 
 mysql wordpress -u root --password=  < wordpress.sql
 
 #WORDPRESS INSTALL

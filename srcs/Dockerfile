@@ -1,5 +1,7 @@
 FROM debian:buster as builder
 
+# to enter the debian:buster as a terminal:
+# docker run -it -p 80:80 --name lemp debian:buster /bin/sh
 RUN	apt-get update;
 RUN	apt-get -y upgrade;
 RUN apt-get install nginx mariadb-server mariadb-client -y;
@@ -8,17 +10,10 @@ RUN apt-get install php-zip php-net-socket php-gd php-xml-util -y;
 RUN apt-get install php-gettext php-mysql php-bcmath unzip -y;
 RUN apt-get install wget vim systemd git -y;
 
-FROM nginx as nginx
-COPY localhost /usr/share/nginx/html
+# -----------------1. SETUP NGINX-----------------
 
-FROM php:7.4-cli as php
-COPY . /usr/src/myapp
-WORKDIR /usr/src/myapp
-CMD [ "php", "./your-script.php" ]
-
-FROM phpmyadmin as myadmin
-
-FROM mariadb as mariadb
-
-FROM wordpress as wordpress
-
+RUN nginx -s reload;
+RUN killall -KILL php-fpm7.3;
+RUN /usr/sbin/php-fpm7.3;
+# docker run -it -d -v $PWD:/var/www/localhost/htdocs -p 80:80 --name mywp lempenv
+# docker build . -t lempenv
