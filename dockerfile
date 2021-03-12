@@ -7,7 +7,13 @@
 # docker start -it -p 80:80 --name lemp debian:buster /bin/sh
 FROM debian:buster
 
+# Expose 'opens up' the specified port of the container
+# Without it, the container is isolated and cannot connect to 
+# the outside world
 EXPOSE 80
+
+# Workdir specifies the working directory (where the commands are executed)
+WORKDIR /
 
 # DOWNLOAD AND INSTALL DEPENDENCIES
 
@@ -22,12 +28,11 @@ RUN apt-get php-zip php-net-socket php-gd php-xml-util -y;
 RUN apt-get php-gettext php-mysql php-bcmath unzip -y;
 RUN apt-get wget vim systemd git -y;
 
-# -----------------1. DEPLOY NGINX-----------------
+# -----------------1. SETUP NGINX-----------------
 
-# run nginx is needed to actually launch the nginx 
-# (which was until then only installed)
-# This is actually done in CMD line
-# RUN nginx
+# -p flag doesnt raise a warning if the directory already exists
+RUN mkdir -p /var/www/localhost
+COPY 
 # at this point, we get the "Welcome to nginx on localhost"
 # --------------------------------------------------
 
@@ -82,3 +87,117 @@ WORKDIR /var/www/localhost/htdocs
 
 # docker run -it -d -v $PWD:/var/www/localhost/htdocs -p 80:80 --name mywp lempenv
 # docker build . -t lempenv
+
+
+
+# 1--------
+#UPDATE & INSTALL PACKAGES
+apt-get update
+apt-get upgrade -y
+apt-get -y install mariadb-server
+apt-get -y install wget
+apt -y install php-{mbstring,zip,gd,xml,pear,gettext,cli,fpm,cgi}
+apt-get -y install php-mysql
+apt-get install -y libnss3-tools
+apt-get -y install nginx
+
+#NGINX SETUP
+cd
+mkdir -p /var/www/localhost
+cp /root/nginx-host-conf /etc/nginx/sites-available/localhost
+ln -s /etc/nginx/sites-available/localhost /etc/nginx/sites-enabled/
+
+#SLL SETUP
+mkdir ~/mkcert && \
+  cd ~/mkcert && \
+  wget https://github.com/FiloSottile/mkcert/releases/download/v1.1.2/mkcert-v1.1.2-linux-amd64 && \
+  mv mkcert-v1.1.2-linux-amd64 mkcert && \
+  chmod +x mkcert
+./mkcert -install
+./mkcert localhost
+
+#DATABASE SETUP
+service mysql start
+echo "CREATE DATABASE wordpress;" | mysql -u root
+echo "GRANT ALL PRIVILEGES ON wordpress.* TO 'root'@'localhost';" | mysql -u root
+echo "FLUSH PRIVILEGES;" | mysql -u root
+echo "update mysql.user set plugin = 'mysql_native_password' where user='root';" | mysql -u root
+cd
+mysql wordpress -u root --password=  < wordpress.sql
+
+#WORDPRESS INSTALL
+cd
+cp wordpress.tar.gz /var/www/localhost/
+cd /var/www/localhost/
+tar -xf wordpress.tar.gz
+rm wordpress.tar.gz
+
+#PHPMYADMIN INSTALL
+cd
+wget https://files.phpmyadmin.net/phpMyAdmin/4.9.0.1/phpMyAdmin-4.9.0.1-english.tar.gz
+mkdir /var/www/localhost/phpmyadmin
+tar xzf phpMyAdmin-4.9.0.1-english.tar.gz --strip-components=1 -C /var/www/localhost/phpmyadmin
+cp /root/config.inc.php /var/www/localhost/phpmyadmin/
+
+#ALLOW NGINX USER
+chown -R www-data:www-data /var/www/*
+chmod -R 755 /var/www/*
+
+#SERVICE STARTER
+service mysql restart
+/etc/init.d/php7.3-fpm start
+service nginx restart
+
+
+
+#2---------
+FROM debian:buster
+
+COPY srcs/localhost /etc/nginx/sites-available/
+COPY srcs/wordpress.zip /var/www/
+COPY srcs/wordpress.sql /var/www/
+COPY srcs/init.sql /var/www/
+COPY srcs/service_start.sh .
+CMD bash service_start.sh && tail -f /dev/null
+# INSTALL & UPDATE
+apt-get update
+apt-get install -y wget
+apt-get install -y nginx
+apt-get install -y mariadb-server
+apt-get install -y php
+apt-get install -y php-cli php-fpm php-cgi
+apt-get install -y php-mysql
+apt-get install -y php-mbstring
+apt-get install -y openssl
+apt-get install -y zip
+
+# WORDPRESS
+unzip /var/www/wordpress.zip -d /var/www/
+
+# ZIP DOWNLOADING APACHE 2 ???? xD
+apt-get purge -y apache2
+
+# MYSQL
+service mysql start
+mysql < /var/www/init.sql
+mysql wordpress -u root --password=  < /var/www/wordpress.sql
+
+# LINK SITE
+ln -s /etc/nginx/sites-available/localhost /etc/nginx/sites-enabled/
+chown -R www-data:www-data /var/www/*
+chmod -R 755 /var/www/*
+
+# RUN PHP
+/etc/init.d/php7.3-fpm start
+
+# SSL
+mkdir ~/mkcert && \
+  cd ~/mkcert && \
+  wget https://github.com/FiloSottile/mkcert/releases/download/v1.1.2/mkcert-v1.1.2-linux-amd64 && \
+  mv mkcert-v1.1.2-linux-amd64 mkcert && \
+  chmod +x mkcert
+./mkcert -install
+./mkcert localhost
+
+# START
+service nginx start
