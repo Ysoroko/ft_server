@@ -8,7 +8,8 @@ RUN apt-get upgrade -y;
 RUN apt-get -y install wget;
 
 RUN apt-get -y install nginx;
-COPY srcs/default.conf /etc/nginx/sites-available
+# COPY srcs/default /etc/nginx/sites-available
+
 RUN apt-get install sysvinit-utils;
 RUN apt-get -y install mariadb-server;
 
@@ -35,5 +36,5 @@ COPY ./srcs/start.sh ./
 
 CMD bash start.sh
 
-# docker build -t nginx .
-# docker run -it --rm -p 80:80 nginx
+# docker build -t ft_server .
+# docker run -it --rm -p 80:80 ft_server
