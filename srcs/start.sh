@@ -1,9 +1,9 @@
+
 service nginx start;
 service mysql start;
 service php7.3-fpm start;
 
-# Configure a wordpress database
-
+#------------------------ Create & configure Wordpress database ----------------------------------------
 # 1. Create a database named wordpress
 echo "CREATE DATABASE wordpress;"| mysql -u root --skip-password;
 
@@ -21,6 +21,5 @@ echo "EXIT " | mysql -u root --skip-password;
 
 service nginx restart;
 service php7.3-fpm restart;
-
 
 bash
