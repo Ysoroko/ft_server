@@ -13,7 +13,7 @@ declare(strict_types=1);
  * This is needed for cookie based authentication to encrypt password in
  * cookie. Needs to be 32 chars long.
  */
-$cfg['blowfish_secret'] = '0123456789abcdefghijk'; /* YOU MUST FILL IN THIS FOR COOKIE AUTH! */
+$cfg['blowfish_secret'] = 'abcdefghijklmnopqrstuvwxyz0123456789'; /* YOU MUST FILL IN THIS FOR COOKIE AUTH! */
 
 /**
  * Servers configuration
@@ -35,13 +35,11 @@ $cfg['Servers'][$i]['AllowNoPassword'] = false;
  * phpMyAdmin configuration storage settings.
  */
 
-/* User used to manipulate with storage */
+/* User used to manipulate with storage 
  $cfg['Servers'][$i]['controlhost'] = '';
  $cfg['Servers'][$i]['controlport'] = '';
  $cfg['Servers'][$i]['controluser'] = 'pma';
  $cfg['Servers'][$i]['controlpass'] = 'pmapass';
-
-/* Storage database and tables */
  $cfg['Servers'][$i]['pmadb'] = 'phpmyadmin';
  $cfg['Servers'][$i]['bookmarktable'] = 'pma__bookmark';
  $cfg['Servers'][$i]['relation'] = 'pma__relation';
@@ -62,7 +60,7 @@ $cfg['Servers'][$i]['AllowNoPassword'] = false;
  $cfg['Servers'][$i]['central_columns'] = 'pma__central_columns';
  $cfg['Servers'][$i]['designer_settings'] = 'pma__designer_settings';
  $cfg['Servers'][$i]['export_templates'] = 'pma__export_templates';
-
+*/
 /**
  * End of servers configuration
  */
