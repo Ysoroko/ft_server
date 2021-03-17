@@ -1,4 +1,3 @@
-
 service nginx start;
 service mysql start;
 service php7.3-fpm start;
@@ -17,9 +16,10 @@ echo "FLUSH PRIVILEGES;"| mysql -u root --skip-password;
 # Since we setup no password, it wouldn't let us connect to phpMyAdmin otherwise
 echo "update mysql.user set plugin='' where user='root';"| mysql -u root --skip-password;
 
-echo "EXIT " | mysql -u root --skip-password;
+# echo "EXIT " | mysql -u root --skip-password;
 
 service nginx restart;
 service php7.3-fpm restart;
 
-bash
+echo "FT_SERVER container is now up and running"
+sleep infinity;
