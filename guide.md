@@ -148,10 +148,17 @@ server {
  Now that we have our configuration file ready, we will need to add some lines to our Dockerfile to copy it inside the container and set it up:
  ```Dockerfile
 #----------------------------------- 3. CONFIGURE NGINX  --------------------------------------
-# At this point, we 
+# NGINX will need a folder where it will search everything related to our website
 RUN mkdir /var/www/localhost
+
+# We change the ownership of the folder we just created so any user can acces it
 RUN chown -R $USER:$USER /var/www/localhost
+
+# COPY copies files from our computer inside our container.
+# We place it inside /etc/nginx/sites-available as required per NGINX documentation
 COPY srcs/localhost /etc/nginx/sites-available
+
+# We also need to create a link between the 2 following folder to "enable" our website
 RUN ln -s /etc/nginx/sites-available/localhost /etc/nginx/sites-enabled
 #----------------------------------------------------------------------------------------------
 ```
