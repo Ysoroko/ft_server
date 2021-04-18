@@ -102,7 +102,7 @@ In our project folder, let's create a "src" folder as required by subject and cr
 
 localhost is the webpage we will be using to acces our web server in this project.
 
-Add the following php code to our "localhost" file:
+Add the following lines to our "localhost" file:
 ```php
 server {
      //tell nginx to listen to the port 80
