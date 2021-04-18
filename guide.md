@@ -84,7 +84,7 @@ RUN apt-get -y install mariadb-server
 # Php packages are needed to read our configuration files and properly connect all of our components together
 # In case a php package is missing, we will get an error when launching php related services later
 RUN apt-get -y install php-cgi php-common php-fpm php-pear php-mbstring
-RUN php-zip php-net-socket php-gd php-xml-util php-gettext php-mysql php-bcmath
+RUN apt-get -y install php-zip php-net-socket php-gd php-xml-util php-gettext php-mysql php-bcmath
 #-------------------------------------------------------------------------------------------------
 ```
 Now if we try to build our docker image and run it, it downloads/updates Debian Buster and also downloads all of the dependencies we need.
@@ -98,46 +98,34 @@ In order to do so, NGINX will need a configuration file where we will tell it wh
 
 Normally on our computer we would simply create a file and write inside, but since we need to do it inside the container, we prepare the configuration file in advance and
 then copy it inside our container when we need it.
-In our project folder, let's create a "src" folder as required by subject and create an empty file named "localhost" inside.
+In our project folder, let's create a "srcs" folder as required by subject and create an empty file named "localhost" inside.
 
 localhost is the webpage we will be using to acces our web server in this project.
 
 Add the following lines to our "localhost" file:
 ```php
 server {
-     //tell nginx to listen to the port 80
      listen 80;
-     //same but apparently it's required for IPV6
      listen [::]:80;
-     //tell nginx the possible names of our website he'll be redirecting us to
      server_name localhost www.localhost;
-     //whenever we try to reach "localhost" or "www.localhost" it will actually redirect us to https://$host$request_uri
+
      return 301 https://$host$request_uri;
  }
  server {
-    //Same thing but for 443 port
     listen 443 ssl;
     listen [::]:443 ssl;
     server_name localhost www.localhost;
 
-    //The following part is used for SSL required in the subject and doesn't do much at the moment but it will be used later
     ssl on;
     ssl_certificate /etc/ssl/nginx-selfsigned.crt;
     ssl_certificate_key /etc/ssl/nginx-selfsigned.key;
-  
-    //The root directive specifies the root directory that will be used to search for a file
+
     root /var/www/localhost;
-    
-    //Autoindex is what will redirect us to the choice between phpMyAdmin and Wordpress. For the moment, it doesn't do much
     autoindex on;
-    //The index directive defines the index configuration file’s name (the default value is index.html)
     index index.html index.htm index.nginx-debian.html index.php;
-    
-    //According to NGINX documentation this will chek for the existence of the files before using them
 	location / {
 		try_files $uri $uri/ =404;
 	}
- //This is needed for php configuration and use in NGINX
 	location ~ \.php$ {
 		include snippets/fastcgi-php.conf;
 		fastcgi_pass unix:/run/php/php7.3-fpm.sock;
