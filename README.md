@@ -16,3 +16,10 @@ Here below you can see the results in the web browser:
 
 ### Auto-Index
 ![](srcs/images/index.png)
+
+### Test it yourself:
+1) ❗ Requires Docker installed and running
+2) Clone this repository anywhere you want, on any OS with Docker running.
+3) Run `make build` in your terminal to build the container
+4) Run `make run` to launch the container
+5) Navigate to [**localhost**](https://localhost) in your browser to see the result
