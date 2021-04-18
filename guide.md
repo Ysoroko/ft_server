@@ -1,4 +1,4 @@
-### This is the complete step-by-step guide to complete ft_server (2021) project for 42 coding schools network.
+### This is the utlimate step-by-step guide to complete ft_server (2021) project for 42 coding schools network.
 <br />
 
 ## Prerequisites:
@@ -45,7 +45,7 @@ in the next step we will start installing the dependencies needed for the rest o
 Before we do that, we need to update the Debian Buster packages to make sure everything is up to date just as we need.
 This is simply done by adding `RUN apt-get update` and `RUN apt-get upgrade -y` to our Dockerfile. 
 
-`RUN` is used in Dockerfile to execute the command inside the window, as if it is entered in the terminal of our Debian OS.
+`RUN` is used in Dockerfile to execute the command inside the image, as if it is entered in the terminal of our Debian OS. If no directory is specified, it is executed at the root of our image.
 
 <br />
 
@@ -89,3 +89,69 @@ RUN php-zip php-net-socket php-gd php-xml-util php-gettext php-mysql php-bcmath
 ```
 Now if we try to build our docker image and run it, it downloads/updates Debian Buster and also downloads all of the dependencies we need.
 
+## 3) Configure NGINX
+In the previous part of the project we have downloaded nginx using `RUN apt-get -y install nginx`.
+
+Now, we will configure it to connect our container to our webpage.
+
+In order to do so, NGINX will need a configuration file where we will tell it what is our webpage name, what ports he needs to "listen" to and what other tools we will use.
+
+Normally on our computer we would simply create a file and write inside, but since we need to do it inside the container, we prepare the configuration file in advance and
+then copy it inside our container when we need it.
+In our project folder, let's create a "src" folder as required by subject and create an empty file named "localhost" inside.
+
+localhost is the webpage we will be using to acces our web server in this project.
+
+Add the following php code to our "localhost" file:
+```php
+server {
+     //tell nginx to listen to the port 80
+     listen 80;
+     //same but apparently it's required for IPV6
+     listen [::]:80;
+     //tell nginx the possible names of our website he'll be redirecting us to
+     server_name localhost www.localhost;
+     //whenever we try to reach "localhost" or "www.localhost" it will actually redirect us to https://$host$request_uri
+     return 301 https://$host$request_uri;
+ }
+ server {
+    //Same thing but for 443 port
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name localhost www.localhost;
+
+    //The following part is used for SSL required in the subject and doesn't do much at the moment but it will be used later
+    ssl on;
+    ssl_certificate /etc/ssl/nginx-selfsigned.crt;
+    ssl_certificate_key /etc/ssl/nginx-selfsigned.key;
+  
+    //The root directive specifies the root directory that will be used to search for a file
+    root /var/www/localhost;
+    
+    //Autoindex is what will redirect us to the choice between phpMyAdmin and Wordpress. For the moment, it doesn't do much
+    autoindex on;
+    //The index directive defines the index configuration file’s name (the default value is index.html)
+    index index.html index.htm index.nginx-debian.html index.php;
+    
+    //According to NGINX documentation this will chek for the existence of the files before using them
+	location / {
+		try_files $uri $uri/ =404;
+	}
+ //This is needed for php configuration and use in NGINX
+	location ~ \.php$ {
+		include snippets/fastcgi-php.conf;
+		fastcgi_pass unix:/run/php/php7.3-fpm.sock;
+	}
+ }
+ ```
+ 
+ Now that we have our configuration file ready, we will need to add some lines to our Dockerfile to copy it inside the container and set it up:
+ ```Dockerfile
+#----------------------------------- 3. CONFIGURE NGINX  --------------------------------------
+# At this point, we 
+RUN mkdir /var/www/localhost
+RUN chown -R $USER:$USER /var/www/localhost
+COPY srcs/localhost /etc/nginx/sites-available
+RUN ln -s /etc/nginx/sites-available/localhost /etc/nginx/sites-enabled
+#----------------------------------------------------------------------------------------------
+```
