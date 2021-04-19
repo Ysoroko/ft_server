@@ -105,27 +105,42 @@ localhost is the webpage we will be using to acces our web server in this projec
 Add the following lines to our "localhost" file:
 ```php
 server {
+     # tells to listen to port 80
      listen 80;
+     # same but for IPV6
      listen [::]:80;
+     # tells the name(s) of our website
      server_name localhost www.localhost;
-
+     # will redirect us to https://$host$request_uri;
+     # when we try to reach the website name in our browser
      return 301 https://$host$request_uri;
  }
  server {
+    # tells to listen to port 443
     listen 443 ssl;
+    # same but for IPV6
     listen [::]:443 ssl;
+    # tells the name(s) of our website
     server_name localhost www.localhost;
 
+    # Enables SSL protocol
     ssl on;
+    # Tells where to look for SSL certificate
     ssl_certificate /etc/ssl/nginx-selfsigned.crt;
+    # Tells where to look for SSL key
     ssl_certificate_key /etc/ssl/nginx-selfsigned.key;
 
+    # Tells where to look for all the files related to our website
     root /var/www/localhost;
+    # Enables autoindex to redirect us to the choice between wordpress and phpMyAdmin
     autoindex on;
+    # Tells the possible names of the index file
     index index.html index.htm index.nginx-debian.html index.php;
+    # Tells to check for existence of files before moving on
 	location / {
 		try_files $uri $uri/ =404;
 	}
+    # Specifies the php configuration
 	location ~ \.php$ {
 		include snippets/fastcgi-php.conf;
 		fastcgi_pass unix:/run/php/php7.3-fpm.sock;
@@ -133,7 +148,7 @@ server {
  }
  ```
  
- Now that we have our configuration file ready, we will need to add some lines to our Dockerfile to copy it inside the container and set it up:
+ Now that our configuration is ready, we will need to add some lines to our Dockerfile to copy it inside the container and set it up:
  ```Dockerfile
 #----------------------------------- 3. CONFIGURE NGINX  --------------------------------------
 # NGINX will need a folder where it will search everything related to our website
@@ -142,7 +157,8 @@ RUN mkdir /var/www/localhost
 # We change the ownership of the folder we just created so any user can acces it
 RUN chown -R $USER:$USER /var/www/localhost
 
-# COPY copies files from our computer inside our container.
+# COPY copies files from the given directory on our computer to given directory inside our container.
+# If a file already exists in the specified directory, we will overwrite it
 # We place it inside /etc/nginx/sites-available as required per NGINX documentation
 COPY srcs/localhost /etc/nginx/sites-available
 
@@ -150,3 +166,5 @@ COPY srcs/localhost /etc/nginx/sites-available
 RUN ln -s /etc/nginx/sites-available/localhost /etc/nginx/sites-enabled
 #----------------------------------------------------------------------------------------------
 ```
+Now if we try to build our docker image and run it, it downloads/updates Debian Buster, all of the dependencies we need
+and also copies our configuration file inside configures NGINX.
