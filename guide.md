@@ -7,7 +7,7 @@
 <br />
 
 ## Project parts breakdown:
-#### 1) Create a Dockerfile and download a Debian Buster image
+#### 1) ]Create a Dockerfile and download a Debian Buster image](Create-a-Dockerfile-and-download-a-Debian-Buster-image)
 #### 2) Install all of the dependancies needed for the rest of the project
 #### 3) Install and configure NGINX
 #### 4) Install and configure phpMyAdmin
@@ -30,7 +30,7 @@
 #### `docker system prune` will cleanup the temporary files and the rest of remaining used space
 <br />
 
-# 1) [Create a Dockerfile and download a Debian Buster image](#create-a-dockerfile-and-download-a-Debian-Buster-image)
+# 1) Create a Dockerfile and download a Debian Buster image
 All you need to do is:
 * Create a file called Dockerfile
 * Add a line `FROM debian:buster` inside.
