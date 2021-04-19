@@ -1,13 +1,13 @@
 ### This is a complete step-by-step guide to complete ft_server project for 42 coding schools network.
 <br />
 
-## Prerequisites:
+# Prerequisites:
 #### - 📚 You are familiar with all of the concepts and tools needed for this project: containers, images, ports, MariaDB, Wordpress, phpMyAdmin etc.
 #### - 🐳 You have Docker installed on your computer and it is running ([**download link**](https://www.docker.com/get-started))
 <br />
 
-## Project parts breakdown:
-#### 1) ]Create a Dockerfile and download a Debian Buster image](Create-a-Dockerfile-and-download-a-Debian-Buster-image)
+# Project parts breakdown:
+#### 1) Create a Dockerfile and download a Debian Buster image
 #### 2) Install all of the dependancies needed for the rest of the project
 #### 3) Install and configure NGINX
 #### 4) Install and configure phpMyAdmin
@@ -16,7 +16,7 @@
 #### 7) Autoindex and wrapping up
 <br />
 
-## Building, running and cleaning up your containers:
+# Building, running and cleaning up your containers:
 #### Throughout this project you will often need to test your work. The following commands are used *A LOT* and I recommend to create a Makefile with rules that will execute them for you
 #### `docker build -t ft_server .` will build our Docker container and name it "ft_server"
 #### `docker run -it --rm -p 80:80 -p 443:443 ft_server` After it's built this command will:
