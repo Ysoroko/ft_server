@@ -12,7 +12,8 @@
 #### 3) Install and configure NGINX
 #### 4) Install and configure phpMyAdmin
 #### 5) Install and configure Wordpress
-#### 6) Generate a SSL certificate and apply it
+#### 6) Generate a SSL certificate and key
+#### 7) Autoindex and wrapping up
 <br />
 
 ## Building, running and cleaning up your containers:
@@ -178,7 +179,14 @@ and also copies our NGINX configuration file inside the container. We still have
 
 ## 4) Install and configure phpMyAdmin
 In step 2 we have installed mariadb-server. Now we will configure it and set up phpMyAdmin to use it.
-[**Here (step 2)**](https://www.digitalocean.com/community/tutorials/how-to-install-linux-nginx-mariadb-php-lemp-stack-on-debian-10) you can see how to install, launch and setup mariadb databases by running several commands inside Debian Buster terminal. For our project we need to tell our container to execute these commands automatically, without us typing them ourselves. This can be achieved by creating a ".sh" file that we will launch when running our container. In our "srcs" folder, let's create a "start.sh" file and try to configure mariadb and create a database we can later use for Wordpress by adding the following commands inside:
+
+[**Here (step 2)**](https://www.digitalocean.com/community/tutorials/how-to-install-linux-nginx-mariadb-php-lemp-stack-on-debian-10) you can see how to install, launch and setup mariadb databases by running several commands inside Debian Buster terminal. 
+
+For our project we need to tell our container to execute these commands automatically, without us typing them ourselves. 
+
+This can be achieved by creating a ".sh" file that we will launch when running our container. 
+
+In our "srcs" folder, let's create a "start.sh" file and try to configure mariadb and create a database we can later use for Wordpress by adding the following commands inside:
 ```Shell
 # Start up NGINX
 service nginx start;
@@ -208,6 +216,11 @@ service nginx restart;
 
 # Restart php to apply the changes
 service php7.3-fpm restart;
+
+# At this point the commands will be executed once and that's it, we need to be able to keep our server
+# running. There are multiple ways to achieve this, but here I will use a kind of a lazy solution of
+# executing "sleep infinity" command which will simply keep our server running until we press CTRL+C
+sleep infinity
 ```
 Now that all of the commands we need to execute are ready and waiting in "start.sh" file, let's place it in our
 container and tell our Dockerfile to execute it.
@@ -285,4 +298,152 @@ COPY ./srcs/config.inc.php phpmyadmin
 
 Now if we try to build our docker image and run it, it downloads/updates Debian Buster, all of the dependencies we need
 and also copies our NGINX configuration file inside the container. It also downloads and installs phpMyAdmin, creates a database and a profile which will be able to access it and copies phpMyAdmin configuration file inside our container.
+
+## 5) Install and configure Wordpress
+In step 4 we have already prepared a database for Wordpress. Now we will create a configuration file for Wordpress, download it using "wget" and set it up.
+
+Let's start by creating a configuration file named "wp-config.php" in our "srcs" folder.
+Add the following lines inside:
+```php
+<?php
+
+// ** MySQL settings - You can get this info from your web host ** //
+/** The name of the database for WordPress */
+define( 'DB_NAME', 'wordpress' );
+
+/** MySQL database username */
+define( 'DB_USER', 'root' );
+
+/** MySQL database password */
+define( 'DB_PASSWORD', '' );
+
+/** MySQL hostname */
+define( 'DB_HOST', 'localhost' );
+
+/** Database Charset to use in creating database tables. */
+define( 'DB_CHARSET', 'utf8' );
+
+/** The Database Collate type. Don't change this if in doubt. */
+define( 'DB_COLLATE', '' );
+
+/**#@+
+ * Authentication Unique Keys and Salts.
+ *
+ * Change these to different unique phrases!
+ * You can generate these using the {@link https://api.wordpress.org/secret-key/1.1/salt/ WordPress.org secret-key service}
+ * You can change these at any point in time to invalidate all existing cookies. This will force all users to have to log in again.
+ *
+ * @since 2.6.0
+ */
+define( 'AUTH_KEY',         'put your unique phrase here' );
+define( 'SECURE_AUTH_KEY',  'put your unique phrase here' );
+define( 'LOGGED_IN_KEY',    'put your unique phrase here' );
+define( 'NONCE_KEY',        'put your unique phrase here' );
+define( 'AUTH_SALT',        'put your unique phrase here' );
+define( 'SECURE_AUTH_SALT', 'put your unique phrase here' );
+define( 'LOGGED_IN_SALT',   'put your unique phrase here' );
+define( 'NONCE_SALT',       'put your unique phrase here' );
+
+/**#@-*/
+
+/**
+ * WordPress Database Table prefix.
+ *
+ * You can have multiple installations in one database if you give each
+ * a unique prefix. Only numbers, letters, and underscores please!
+ */
+$table_prefix = 'wp_';
+
+/**
+ * For developers: WordPress debugging mode.
+ *
+ * Change this to true to enable the display of notices during development.
+ * It is strongly recommended that plugin and theme developers use WP_DEBUG
+ * in their development environments.
+ *
+ * For information on other constants that can be used for debugging,
+ * visit the Codex.
+ *
+ * @link https://codex.wordpress.org/Debugging_in_WordPress
+ */
+define( 'WP_DEBUG', false );
+
+/* That's all, stop editing! Happy publishing. */
+
+/** Absolute path to the WordPress directory. */
+if ( ! defined( 'ABSPATH' ) ) {
+	define( 'ABSPATH', dirname( __FILE__ ) . '/' );
+}
+
+/** Sets up WordPress vars and included files. */
+require_once( ABSPATH . 'wp-settings.php' );
+```
+
+Now that we have our configuration file ready, let's download Wordpress and configure our container!
+
+Add the following lines in our Dockerfile:
+
+```Dockerfile
+#----------------------------- 5.Install and configure Wordpress ------------------------------
+# Download Wordpress using wget
+RUN wget https://wordpress.org/latest.tar.gz
+
+# Extract it and remove the .tar file
+RUN tar -xvzf latest.tar.gz && rm -rf latest.tar.gz 
+
+# Copy our configuration file inside the container
+COPY ./srcs/wp-config.php /var/www/localhost/wordpress
+#----------------------------------------------------------------------------------------------
+```
+That's it! Now we have our debian buster image, all the dependencies we need, NGINX, phpMyAdmin and Wordpress configued. The only thing left to do is setup the SSL protocol and the project is ready!
+
+## 6) Generate a SSL certificate and key
+In step 3 we have added a "localhost" file in our "srcs" folder which was telling NGINX where to look for the ssl certificate and key. Now we will create those by adding a simple (but a very long) line in Dockerfile:
+```Dockerfile
+#----------------------------------- 6. GENERATE SSL CERTIFICATE AN KEY------------------------
+# SSL creates a secured channel between the web browser and the web server
+#
+# "openssl" command allows us to create a certificate and key ourselves
+# here below is the explanation of the flags used:
+# -x509 specifies a self signed certificate
+# -nodes specifies that the private key wont be encrypted
+# -days specifies the validity (in days) of the certificate
+# -subj allows us to use the following string (and not create a separate file for it)
+# The next line is personnal information, you will need to use your own
+# -newkey creates a new certificate request and a new private key 
+# -rsa 2018 is the standard key size (in bits)
+# -keyout specifies where to save the key
+# -out specifies the file name
+RUN openssl req -x509 -nodes -days 30 -subj "/C=BE/ST=Belgium/L=Brussels/O=42 Network/OU=s19/CN=ysoroko" -newkey rsa:2048 -keyout /etc/ssl/nginx-selfsigned.key -out /etc/ssl/nginx-selfsigned.crt;
+#----------------------------------------------------------------------------------------------
+```
+And this is it! Now we have a fully functional ft_server project with NGINX, MySQL (MariaDB), phpMyAdmin, Wordpress and SSL protocol! You can try to build and run your container and then try to open [**localhost**](https://localhost/). You will see the following webpage: 
+
+## 7) Autoindex and wrapping up
+
+#### Autoindex
+Normally when your build and run the container now and while it is running you try to reach [**localhost**](https://localhost/) webpage, you will see the contents of your /var/www/localhost/ directory:
+
+![](srcs/images/index.png)
+
+If you click on Wordpress, you will open Wordpress service and the same goes for phpMyAdmin.
+This "homepage" with all of your contents is displayed because autoindex is activated in our "localhost" configuration file:
+```php
+# Enables autoindex to redirect us to the choice between wordpress and phpMyAdmin
+autoindex on;
+```
+To deactivate it, you can replace "on" by "off", then rebuild and rerun the container.
+
+This will show you an error while opening [**localhost**](https://localhost/), but Wordpress and phpMyAdmin are
+still accessible by their addresses [**https://localhost/phpmyadmin/**](https://localhost/phpmyadmin/) and [**https://localhost/wordpress/**](https://localhost/phpmyadmin/).
+
+#### Wrapping up
+You can now login into phpMyAdmin by using "root" username and an empty password (this was setup in our start.sh file and we can create an empty password because we allowed it in "config.inc.php" file). Inside, you will be able to check out the Wordpress database and the changes like newly created users/posts etc.
+
+For Wordpress, first time you try to open it, it will ask you to create a profile and afterwards you will be able to login with it and use all of the Wordpress features like themes, posts etc.
+
+You can check that the profile you created to access Wordpress is actually appearing in phpMyAdmin tables to make sure the link between the two is working properly.
+
+Since we created auto-signed ssl certificate and key we get the warning "Your connection is not private". However, the ssl protocol is up and running and you can see that the website is using our certificate and key are applied by clicking "Not Secure" -> Certificate (on Google Chrome) to see all the details we entered before in openssl command. Another sign that we are using ssl is that we are using https and not http to reach the webpage.
+
 
