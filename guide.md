@@ -46,7 +46,7 @@ in the next step we will start installing the dependencies needed for the rest o
 Before we do that, we need to update the Debian Buster packages to make sure everything is up to date just as we need.
 This is simply done by adding `RUN apt-get update` and `RUN apt-get upgrade -y` to our Dockerfile. 
 
-`RUN` is used in Dockerfile to execute the command inside the image, as if it is entered in the terminal of our Debian OS. If no directory is specified, it is executed at the root of our image.
+`RUN` is used in Dockerfile to execute the command inside the image, as if it is entered in the terminal of our Debian OS.
 
 <br />
 
