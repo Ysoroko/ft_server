@@ -66,10 +66,10 @@ Now if we try to build our docker image and run it, Debian Buster image will be 
 ## 2) Install all of the dependancies needed to install the rest of the tools
 Now that we have our Dockerfile and an empty Debian OS with basic packages, we will install the dependencies and tools needed for further steps in the project.
 
-This is adding several `apt-get install` to our Dockerfile. For this project there are several things we need:
+This is done by adding several `apt-get install` to our Dockerfile. For this project there is a couple of things we need:
 ```Dockerfile
 #----------------------------------- 2. Intall Dependencies --------------------------------------
-# Sysvinit-utils for "service" command used to easaily restart out nginx after updating
+# Sysvinit-utils for "service" command used to easily restart out nginx after updating
 RUN apt-get install sysvinit-utils
 
 # Wget is used to easily download phpMyAdmin / Wordpress
