@@ -147,6 +147,7 @@ server {
 	}
  }
  ```
+ At this point we have added inside everything we need for the entire project, but some parts aren't functionnal yet and will be added further in this guide.
  
  Now that our configuration is ready, we will need to add some lines to our Dockerfile to copy it inside the container and set it up:
  ```Dockerfile
@@ -167,4 +168,4 @@ RUN ln -s /etc/nginx/sites-available/localhost /etc/nginx/sites-enabled
 #----------------------------------------------------------------------------------------------
 ```
 Now if we try to build our docker image and run it, it downloads/updates Debian Buster, all of the dependencies we need
-and also copies our configuration file inside configures NGINX.
+and also copies our configuration file inside configures NGINX. We still have no way of reaching our website and checking that everything works, this will be added in the next step.
