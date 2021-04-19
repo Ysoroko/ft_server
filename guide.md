@@ -30,7 +30,7 @@
 #### `docker system prune` will cleanup the temporary files and the rest of remaining used space
 <br />
 
-## 1) Create a Dockerfile and download a Debian Buster image
+# 1) Create a Dockerfile and download a Debian Buster image
 All you need to do is:
 * Create a file called Dockerfile
 * Add a line `FROM debian:buster` inside.
@@ -64,7 +64,7 @@ Now if we try to build our docker image and run it, Debian Buster image will be 
 
 <br />
 
-## 2) Install all of the dependancies needed to install the rest of the tools
+# 2) Install all of the dependancies needed to install the rest of the tools
 Now that we have our Dockerfile and an empty Debian OS with basic packages, we will install the dependencies and tools needed for further steps in the project.
 
 This is done by adding several `apt-get install` to our Dockerfile. For this project there is a couple of things we need:
@@ -90,7 +90,7 @@ RUN apt-get -y install php-zip php-net-socket php-gd php-xml-util php-gettext ph
 ```
 Now if we try to build our docker image and run it, it downloads/updates Debian Buster and also downloads all of the dependencies we need.
 
-## 3) Configure NGINX
+# 3) Configure NGINX
 In the previous part of the project we have downloaded nginx using `RUN apt-get -y install nginx`.
 
 Now, we will configure it to connect our container to our webpage.
@@ -177,7 +177,7 @@ Now if we try to build our docker image and run it, it downloads/updates Debian 
 and also copies our NGINX configuration file inside the container. We still have no way of reaching our website and checking that everything works, this will be added in the last step.
 <br />
 
-## 4) Install and configure phpMyAdmin
+# 4) Install and configure phpMyAdmin
 In step 2 we have installed mariadb-server. Now we will configure it and set up phpMyAdmin to use it.
 
 [**Here (step 2)**](https://www.digitalocean.com/community/tutorials/how-to-install-linux-nginx-mariadb-php-lemp-stack-on-debian-10) you can see how to install, launch and setup mariadb databases by running several commands inside Debian Buster terminal. 
@@ -299,7 +299,7 @@ COPY ./srcs/config.inc.php phpmyadmin
 Now if we try to build our docker image and run it, it downloads/updates Debian Buster, all of the dependencies we need
 and also copies our NGINX configuration file inside the container. It also downloads and installs phpMyAdmin, creates a database and a profile which will be able to access it and copies phpMyAdmin configuration file inside our container.
 
-## 5) Install and configure Wordpress
+# 5) Install and configure Wordpress
 In step 4 we have already prepared a database for Wordpress. Now we will create a configuration file for Wordpress, download it using "wget" and set it up.
 
 Let's start by creating a configuration file named "wp-config.php" in our "srcs" folder.
@@ -397,7 +397,7 @@ COPY ./srcs/wp-config.php /var/www/localhost/wordpress
 ```
 That's it! Now we have our debian buster image, all the dependencies we need, NGINX, phpMyAdmin and Wordpress configued. The only thing left to do is setup the SSL protocol and the project is ready!
 
-## 6) Generate a SSL certificate and key
+# 6) Generate a SSL certificate and key
 In step 3 we have added a "localhost" file in our "srcs" folder which was telling NGINX where to look for the ssl certificate and key. Now we will create those by adding a simple (but a very long) line in Dockerfile:
 ```Dockerfile
 #----------------------------------- 6. GENERATE SSL CERTIFICATE AN KEY------------------------
@@ -419,7 +419,7 @@ RUN openssl req -x509 -nodes -days 30 -subj "/C=BE/ST=Belgium/L=Brussels/O=42 Ne
 ```
 And this is it! Now we have a fully functional ft_server project with NGINX, MySQL (MariaDB), phpMyAdmin, Wordpress and SSL protocol! You can try to build and run your container and then try to open [**localhost**](https://localhost/). You will see the following webpage: 
 
-## 7) Autoindex and wrapping up
+# 7) Autoindex and wrapping up
 
 #### Autoindex
 Normally when your build and run the container now and while it is running you try to reach [**localhost**](https://localhost/) webpage, you will see the contents of your /var/www/localhost/ directory:
