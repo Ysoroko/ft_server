@@ -6,7 +6,7 @@
 #### - 🐳 You have Docker installed on your computer and it is running ([**download link**](https://www.docker.com/get-started))
 <br />
 
-# Project parts breakdown:
+# Project parts summary:
 #### 1) Create a Dockerfile and download a Debian Buster image
 #### 2) Install all of the dependancies needed for the rest of the project
 #### 3) Install and configure NGINX
