@@ -165,7 +165,124 @@ COPY srcs/localhost /etc/nginx/sites-available
 
 # We also need to create a link between the 2 following folder to "enable" our website
 RUN ln -s /etc/nginx/sites-available/localhost /etc/nginx/sites-enabled
+
+# For the next steps, we will be working inside /var/www/localhost directory
+# To avoid writing /var/www/localhost before every command, we can change current working directory
+# WORKDIR command in dockerfile changes the directory where next commands will be executed
+WORKDIR /var/www/localhost/
 #----------------------------------------------------------------------------------------------
 ```
 Now if we try to build our docker image and run it, it downloads/updates Debian Buster, all of the dependencies we need
-and also copies our configuration file inside configures NGINX. We still have no way of reaching our website and checking that everything works, this will be added in the next step.
+and also copies our NGINX configuration file inside the container. We still have no way of reaching our website and checking that everything works, this will be added in the last step.
+<br />
+
+## 4) Install and configure phpMyAdmin
+In step 2 we have installed mariadb-server. Now we will configure it and set up phpMyAdmin to use it.
+[**Here (step 2)**](https://www.digitalocean.com/community/tutorials/how-to-install-linux-nginx-mariadb-php-lemp-stack-on-debian-10) you can see how to install, launch and setup mariadb databases by running several commands inside Debian Buster terminal. For our project we need to tell our container to execute these commands automatically, without us typing them ourselves. This can be achieved by creating a ".sh" file that we will launch when running our container. In our "srcs" folder, let's create a "start.sh" file and try to configure mariadb and create a database we can later use for Wordpress by adding the following commands inside:
+```Shell
+# Start up NGINX
+service nginx start;
+
+# Start up MySQL
+service mysql start;
+
+# Start up PHP
+service php7.3-fpm start;
+
+#------------------------ Create & configure Wordpress database ----------------------------------------
+# 1. Create a database named wordpress
+echo "CREATE DATABASE wordpress;" | mysql -u root --skip-password;
+
+# 2. Create a root account which can access all tables in wordpress
+echo "GRANT ALL PRIVILEGES ON wordpress.* TO 'root'@'localhost' WITH GRANT OPTION;" | mysql -u root --skip-password;
+
+# 3. Apply the previous changes (otherwise it waits until we restart the server)
+echo "FLUSH PRIVILEGES;" | mysql -u root --skip-password;
+
+# 4. Disregards the password, check the UNIX socker instead
+# Since we setup no password, it wouldn't let us connect to phpMyAdmin otherwise
+echo "update mysql.user set plugin='' where user='root';" | mysql -u root --skip-password;
+
+# Restart the nginx to apply the changes
+service nginx restart;
+
+# Restart php to apply the changes
+service php7.3-fpm restart;
+```
+Now that all of the commands we need to execute are ready and waiting in "start.sh" file, let's place it in our
+container and tell our Dockerfile to execute it.
+```Dockerfile
+#----------------------------------- 4. PHP MY ADMIN ---------------------------------------
+# Move start.sh from our computer inside the container
+COPY ./srcs/start.sh ./
+
+# Every other command in Dockerfile is executed while "building" our container
+# CMD tells Docker the default command to execute when we are "running" our container
+CMD bash start.sh;
+```
+Now that we are managing databases with MariaDB and we have created a database, let's download and configure phpMyAdmin to test it! 
+
+First, just as for NGINX, phpMyAdmin will need a configuration file to set up some basic behaviour.
+Let's create a "config.inc.php" file in our "srcs" folder and add the following lines inside:
+```PHP
+<?php
+/**
+ * phpMyAdmin sample configuration, you can use it as base for
+ * manual configuration. For easier setup you can use setup/
+ *
+ * All directives are explained in documentation in the doc/ folder
+ * or at <https://docs.phpmyadmin.net/>.
+ */
+
+declare(strict_types=1);
+
+/**
+ * This is needed for cookie based authentication to encrypt password in
+ * cookie. Needs to be 32 chars long.
+ */
+$cfg['blowfish_secret'] = 'abcdefghijklmnopqrstuvwxyz0123456789'; /* YOU MUST FILL IN THIS FOR COOKIE AUTH! */
+
+/**
+ * Servers configuration
+ */
+$i = 0;
+
+/**
+ * First server
+ */
+$i++;
+/* Authentication type */
+$cfg['Servers'][$i]['auth_type'] = 'cookie';
+/* Server parameters */
+$cfg['Servers'][$i]['host'] = 'localhost';
+$cfg['Servers'][$i]['compress'] = false;
+/* This is needed to login to phpMyAdmin without the use of the password */
+$cfg['Servers'][$i]['AllowNoPassword'] = true;
+
+/**
+ * Directories for saving/loading files from server
+ */
+$cfg['UploadDir'] = '';
+$cfg['SaveDir'] = '';
+```
+
+Now that we have our phpMyAdmin configuration file ready, let's download phpMyAdmin and set everything up!
+Add the following lines to our Dockerfile:
+```Dockerfile
+# Download phpMyAdmin by using "wget" which we installed in step 2
+RUN wget https://files.phpmyadmin.net/phpMyAdmin/5.1.0/phpMyAdmin-5.1.0-english.tar.gz
+
+# Extract the downloaded compressed files and remove the ".tar" file we no longer need
+RUN tar -xf phpMyAdmin-5.1.0-english.tar.gz && rm -rf phpMyAdmin-5.1.0-english.tar.gz
+
+# Move the extracted files in the "phpmyadmin" folder
+RUN mv phpMyAdmin-5.1.0-english phpmyadmin
+
+# Copy the "config.inc.php" file we created to the same "phpmyadmin" folder
+COPY ./srcs/config.inc.php phpmyadmin
+#----------------------------------------------------------------------------------------------
+```
+
+Now if we try to build our docker image and run it, it downloads/updates Debian Buster, all of the dependencies we need
+and also copies our NGINX configuration file inside the container. It also downloads and installs phpMyAdmin, creates a database and a profile which will be able to access it and copies phpMyAdmin configuration file inside our container.
+
