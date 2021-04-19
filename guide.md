@@ -1,18 +1,16 @@
 ### This is a complete step-by-step guide to complete ft_server project for 42 coding schools network.
-<br />
-
 # Prerequisites:
-#### - 📚 You are familiar with all of the concepts and tools needed for this project: containers, images, ports, MariaDB, Wordpress, phpMyAdmin etc.
-#### - 🐳 You have Docker installed on your computer and it is running ([**download link**](https://www.docker.com/get-started))
+### - 📚 You are familiar with all of the concepts and tools needed for this project: containers, images, ports, MariaDB, Wordpress, phpMyAdmin etc.
+### - 🐳 You have Docker installed on your computer and it is running ([**download link**](https://www.docker.com/get-started))
 <br />
 
 # Project parts summary:
 #### 1) Create a Dockerfile and download a Debian Buster image
-#### 2) Install all of the dependancies needed for the rest of the project
+#### 2) Install all of the dependencies needed for the rest of the project
 #### 3) Install and configure NGINX
 #### 4) Install and configure phpMyAdmin
 #### 5) Install and configure Wordpress
-#### 6) Generate a SSL certificate and key
+#### 6) Generate SSL certificate and key
 #### 7) Autoindex and wrapping up
 <br />
 
@@ -397,7 +395,7 @@ COPY ./srcs/wp-config.php /var/www/localhost/wordpress
 ```
 That's it! Now we have our debian buster image, all the dependencies we need, NGINX, phpMyAdmin and Wordpress configued. The only thing left to do is setup the SSL protocol and the project is ready!
 
-# 6) Generate a SSL certificate and key
+# 6) Generate SSL certificate and key
 In step 3 we have added a "localhost" file in our "srcs" folder which was telling NGINX where to look for the ssl certificate and key. Now we will create those by adding a simple (but a very long) line in Dockerfile:
 ```Dockerfile
 #----------------------------------- 6. GENERATE SSL CERTIFICATE AN KEY------------------------
