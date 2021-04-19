@@ -1,4 +1,4 @@
-### This is a complete step-by-step guide to complete ft_server (2021) project for 42 coding schools network.
+### This is a complete step-by-step guide to complete ft_server project for 42 coding schools network.
 <br />
 
 ## Prerequisites:
