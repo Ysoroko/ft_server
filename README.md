@@ -5,7 +5,7 @@
 
 --------------------------------------------------------------------------------------------------------------------------------------
 
-#### [My complete tutorial to validate this project](https://github.com/Ysoroko/ft_server_tutorial)
+#### ✅ [My complete tutorial to validate this project](https://github.com/Ysoroko/ft_server_tutorial)
 
 --------------------------------------------------------------------------------------------------------------------------------------
 
