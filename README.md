@@ -30,7 +30,7 @@ Here below you can see the results in the web browser:
 
 --------------------------------------------------------------------------------------------------------------------------------------
 
-# Useful links:
+# Useful links that helped me with this project:
 - [**Udemy course as a useful introduction to Docker**](https://www.udemy.com/course/docker-and-kubernetes-the-complete-guide/)
 - [**How to install LEMP stack on Debian 10**](https://www.digitalocean.com/community/tutorials/how-to-install-linux-nginx-mariadb-php-lemp-stack-on-debian-10)
 - [**Wordpress and phpMyAdmin setup with Docker on Alpine**](https://codingwithmanny.medium.com/custom-wordpress-docker-setup-8851e98e6b8)
